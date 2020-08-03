@@ -45,13 +45,19 @@
           localStorage.setItem("iValue", 1);
         }
         var data = { ...localStorage };
-        var noteString = "";
+        var newNoteString = "";
+        var completedNoteString = "";
         for (var i in data) {
           if (i !== "iValue") {
-            noteString = noteString + localStorage[i];
+            if (localStorage[i].endsWith("done")) {
+              completedNoteString = completedNoteString + localStorage[i].split("done")[0];
+            } else {
+              newNoteString = newNoteString + localStorage[i];
+            }
           }
         }
-        document.getElementById("new_note_list").innerHTML = noteString;
+        document.getElementById("new_note_list").innerHTML = newNoteString;
+        document.getElementById("completed_note_list").innerHTML = completedNoteString;
       }
       function moveNote(e) {
         document.getElementById(e.target.parentNode.id).remove();
@@ -61,7 +67,6 @@
         document.getElementById(e.target.parentNode.id).remove();
       }
       function moveNoteToCompleted(e) {
-        console.log("Clicks");
         var newCompletedNote = e.target.parentNode.innerText;
         var newCompletedNoteId = e.target.parentNode.id;
         newCompletedNote = newCompletedNote.split("Completed")[0];
@@ -70,13 +75,17 @@
         newListnode.setAttribute("id", newCompletedNoteId);
         newListnode.appendChild(newTextNode);
         var newButtonNode = document.createElement("button");
-        newButtonNode.onclick = () => deleteCompletedNote(event);
+        newButtonNode.setAttribute("onclick", "deleteCompletedNote(event)");
         newTextNode = document.createTextNode("Delete");
         newButtonNode.setAttribute("class", "deleteButton");
         newButtonNode.appendChild(newTextNode);
         newListnode.appendChild(newButtonNode);
         moveNote(e);
         document.getElementById("completed_note_list").appendChild(newListnode);
+        localStorage.setItem(
+          e.target.parentNode.id,
+         newListnode.outerHTML + " done"
+        );
       }
       function addNewNote() {
         var newNoteData = document.getElementById("new_note_data").value;
@@ -92,7 +101,7 @@
           newListnode.setAttribute("id", temp_note_id);
           newListnode.appendChild(newTextNode);
           var newButtonNode = document.createElement("button");
-          newButtonNode.onclick = () => moveNoteToCompleted(event);
+          newButtonNode.setAttribute("onclick", "moveNoteToCompleted(event)");
           newButtonNode.setAttribute("class", "completedButton");
           newTextNode = document.createTextNode("Completed");
           newButtonNode.appendChild(newTextNode);
